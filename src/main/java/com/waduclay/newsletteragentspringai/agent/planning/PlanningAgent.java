@@ -31,15 +31,18 @@ public class PlanningAgent {
     private final ChatClient chatClient;
     private final ObjectMapper objectMapper;
     private final SystemMessage systemMessage;
+    private final TopicFormatConverter topicFormatConverter;
+
 
     public PlanningAgent(ChatClient.Builder chatClientBuilder,
                          ObjectMapper objectMapper,
                          @Value("classpath:prompts/planning-agent-system-message.st")
-                         Resource planningAgentSystemMessage
+                         Resource planningAgentSystemMessage, TopicFormatConverter topicFormatConverter
     ) {
         this.chatClient = chatClientBuilder.build();
         this.objectMapper = objectMapper;
         this.systemMessage = new SystemMessage(planningAgentSystemMessage);
+        this.topicFormatConverter = topicFormatConverter;
     }
 
     /**
@@ -91,8 +94,10 @@ public class PlanningAgent {
         UserMessage userMessage = new UserMessage(serializedResults);
         Prompt prompt = new Prompt(systemMessage, userMessage);
 
-        return chatClient.prompt(prompt)
-                .call()
-                .entity(TopicFormat.class);
+        return Objects.requireNonNull(chatClient.prompt(prompt)
+                        .call()
+                        .entity(topicFormatConverter)
+        );
+
     }
 }
