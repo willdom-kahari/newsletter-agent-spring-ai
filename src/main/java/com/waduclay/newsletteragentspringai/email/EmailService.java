@@ -5,6 +5,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -26,9 +27,10 @@ public class EmailService {
     private String emailRecipient;
 
 
+    @Tool(name = "sendEmail", description = "Pass the subject and the content to send an email")
     public void sendEmail(
             String subject,
-            String message
+            String content
     ) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_RELATED, StandardCharsets.UTF_8.name());
@@ -37,7 +39,7 @@ public class EmailService {
         messageHelper.setSubject(subject);
 
         try {
-            messageHelper.setText(message, true);
+            messageHelper.setText(content, true);
             messageHelper.setTo(emailRecipient);
             mailSender.send(mimeMessage);
             log.info("Email sent successfully to: {}", emailRecipient);
