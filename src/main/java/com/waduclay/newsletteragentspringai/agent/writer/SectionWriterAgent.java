@@ -21,9 +21,33 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Agent responsible for planning newsletter topics based on web search results.
+ * AI agent responsible for writing individual newsletter sections based on research and topics.
+ * <p>
+ * This agent takes search results from Tavily web searches and a specific topic, then generates
+ * well-structured newsletter content sections using AI-powered writing capabilities. The agent
+ * leverages Spring AI's {@link ChatClient} with configurable prompt templates to ensure consistent
+ * and high-quality content generation.
+ * 
+ * <p><strong>Key Features:</strong>
+ * <ul>
+ *   <li>AI-powered content generation using OpenAI models via OpenRouter</li>
+ *   <li>Configurable prompt templates for consistent writing style</li>
+ *   <li>Robust error handling with graceful degradation for failed items</li>
+ *   <li>JSON serialization of search results for AI processing</li>
+ *   <li>Template-based message formatting with placeholder replacement</li>
+ * </ul>
+ * 
+ * <p><strong>Workflow:</strong>
+ * <ol>
+ *   <li>Validates input search response and topic</li>
+ *   <li>Serializes search results to JSON format</li>
+ *   <li>Formats prompt template with research data and topic</li>
+ *   <li>Generates content using AI chat client</li>
+ *   <li>Returns formatted section content</li>
+ * </ol>
  *
  * @author <a href="mailto:developer.wadu@gmail.com">Willdom Kahari</a>
+ * @since 1.0.0
  */
 @Slf4j
 @Component
@@ -38,6 +62,18 @@ public class SectionWriterAgent {
     @Value("classpath:prompts/section-writer-prompt-template.st")
     private Resource sectionWriterAgentPromptTemplate;
 
+    /**
+     * Constructs a new SectionWriterAgent with the required dependencies.
+     * <p>
+     * All dependencies are injected via Spring's dependency injection mechanism.
+     * The system message template is loaded from the classpath and used to configure
+     * the AI agent's behavior and writing style.
+     *
+     * @param chatClientBuilder builder for creating the Spring AI chat client
+     * @param objectMapper JSON object mapper for serializing search results
+     * @param sectionWriterAgentSystemMessage system message template resource for AI prompting
+     * @param sectionFormatConverter converter for formatting the AI response output
+     */
     public SectionWriterAgent(ChatClient.Builder chatClientBuilder,
                               ObjectMapper objectMapper,
                               @Value("classpath:prompts/section-writer-agent-system-message.st")
@@ -51,10 +87,23 @@ public class SectionWriterAgent {
     }
 
     /**
-     * Plan newsletter topics based on the provided search response.
+     * Writes a newsletter section based on the provided search response and topic.
+     * <p>
+     * This method processes web search results and generates well-structured newsletter content
+     * for a specific topic. The process involves:
+     * <ol>
+     *   <li>Validating the input search response</li>
+     *   <li>Serializing search results to JSON format for AI processing</li>
+     *   <li>Loading and formatting the prompt template with research data and topic</li>
+     *   <li>Using the AI chat client to generate section content</li>
+     *   <li>Converting the response using the section format converter</li>
+     * </ol>
      *
-     * @return formatted topics for newsletter planning
-     * @throws PlanningException if planning fails due to processing errors
+     * @param searchResponse the Tavily search response containing relevant web results
+     * @param topic the specific topic for which to write the newsletter section
+     * @return formatted newsletter section content as a string
+     * @throws IOException if template loading or processing fails
+     * @throws IllegalArgumentException if the search response is null or empty
      */
     public String write(TavilyResponse searchResponse, String topic) throws IOException {
         validateInput(searchResponse);
@@ -71,6 +120,16 @@ public class SectionWriterAgent {
 
     }
 
+    /**
+     * Serializes a list of search result items into a formatted string for AI processing.
+     * <p>
+     * This method processes search results in parallel for performance, filtering out null items
+     * and gracefully handling serialization failures. Failed items are logged and skipped
+     * rather than causing the entire operation to fail.
+     *
+     * @param results the list of search result items to serialize
+     * @return concatenated JSON strings separated by double newlines
+     */
     private String serializeResults(List<ResultsItem> results) {
         return results.parallelStream()
                 .filter(Objects::nonNull)
@@ -79,6 +138,16 @@ public class SectionWriterAgent {
                 .collect(Collectors.joining(RESULTS_SEPARATOR));
     }
 
+    /**
+     * Safely serializes a single result item to JSON string with error handling.
+     * <p>
+     * This method provides fault tolerance by catching JSON processing exceptions
+     * and returning null for problematic items, allowing the overall process to continue.
+     * Failed serialization attempts are logged for debugging purposes.
+     *
+     * @param item the result item to serialize
+     * @return JSON string representation of the item, or null if serialization fails
+     */
     private String safeSerialize(ResultsItem item) {
         try {
             return objectMapper.writeValueAsString(item);
@@ -88,7 +157,15 @@ public class SectionWriterAgent {
         }
     }
 
-
+    /**
+     * Validates the input search response to ensure it contains required data.
+     * <p>
+     * This method performs defensive programming by checking that the search response
+     * is not null and contains at least one result item for processing.
+     *
+     * @param searchResponse the search response to validate
+     * @throws IllegalArgumentException if the search response is null or contains no results
+     */
     private void validateInput(TavilyResponse searchResponse) {
         if (searchResponse == null) {
             throw new IllegalArgumentException("Search response cannot be null");
