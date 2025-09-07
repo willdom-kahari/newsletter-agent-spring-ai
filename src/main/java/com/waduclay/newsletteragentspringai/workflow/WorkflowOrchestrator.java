@@ -36,7 +36,8 @@ public class WorkflowOrchestrator {
     @SneakyThrows
     @Scheduled(cron = "0 0 1 * * SUN")
     public void createNewsletter() {
-        TavilySearch searchQuery = new TavilySearch("AI agents trends");
+        TavilySearch searchQuery = new TavilySearch("AI agent workflows project ideas");
+        searchQuery.setTimeRange(TimeRange.week);
         TavilyResponse tavilyResponse = tavilyService.search(searchQuery);
         TopicFormat plannedTopics = planningAgent.plan(tavilyResponse);
         log.info("Planned topics: {}", plannedTopics);
@@ -60,7 +61,6 @@ public class WorkflowOrchestrator {
         TavilySearch tavilySearch = new TavilySearch(topic);
         tavilySearch.setTimeRange(TimeRange.month);
         tavilySearch.setIncludeRawContent(RawContent.text);
-        tavilySearch.setMaxResults(3);
         return tavilySearch;
     }
 

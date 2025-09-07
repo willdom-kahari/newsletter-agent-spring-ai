@@ -23,6 +23,9 @@
     <focus-area>
         Open source AI agent projects
     </focus-area>
+    <focus-area>
+        Model Context Protocol
+    </focus-area>
 </focus-areas>
 <instructions>
 	<instruction>

@@ -26,7 +26,7 @@ public class TavilyService {
 
     public TavilyResponse search(TavilySearch request) throws JsonProcessingException {
         String cleanedUpRequest = objectMapper.writeValueAsString(request);
-        log.debug("Tavily Request: {}", cleanedUpRequest);
+        log.info("Tavily Request: {}", cleanedUpRequest);
 
         String body = restClient.post()
                 .body(request)

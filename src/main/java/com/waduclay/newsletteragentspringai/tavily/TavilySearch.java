@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -20,11 +22,21 @@ public class TavilySearch {
     private int maxResults = 5;
     @JsonProperty("include_raw_content")
     private RawContent includeRawContent;
+    @JsonProperty("include_domains")
+    private List<String> includeDomains;
 
 
     public TavilySearch(String query) {
         this.query = query;
         this.maxResults = 5;
+        this.includeDomains = List.of(
+                "github.com",
+                "arxiv.org",
+                "medium.com",
+                "towardsdatascience.com",
+                "n8n.io/workflows",
+                "n8n.io/ai-agents"
+        );
     }
 
 }
