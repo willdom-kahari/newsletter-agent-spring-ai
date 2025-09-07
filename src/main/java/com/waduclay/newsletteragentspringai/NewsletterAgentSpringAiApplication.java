@@ -1,7 +1,9 @@
 package com.waduclay.newsletteragentspringai;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.waduclay.newsletteragentspringai.email.EmailService;
 import com.waduclay.newsletteragentspringai.tavily.*;
+import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -19,15 +21,8 @@ public class NewsletterAgentSpringAiApplication {
     }
 
     @Bean
-    ApplicationRunner runner(TavilyService service) throws JsonProcessingException {
-        TavilySearch request = TavilySearch.builder()
-                .query("spring boot")
-                .timeRange(TimeRange.month)
-                .includeRawContent(RawContent.text)
-                .build();
-
-        log.info("Request: {}", request);
-        service.search(request);
+    ApplicationRunner runner(EmailService service) throws JsonProcessingException, MessagingException {
+      service.sendEmail("Makadii Nyika", "Ndeip baba");
         return args -> {
 
         };
