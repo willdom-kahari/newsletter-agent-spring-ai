@@ -9,6 +9,7 @@ import com.waduclay.newsletteragentspringai.agent.writer.SectionWriterAgent;
 import com.waduclay.newsletteragentspringai.tavily.*;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -33,6 +34,7 @@ public class WorkflowOrchestrator {
     }
 
     @SneakyThrows
+    @Scheduled(cron = "0 0 1 * * SUN")
     public void createNewsletter() {
         TavilySearch searchQuery = new TavilySearch("AI agents trends");
         TavilyResponse tavilyResponse = tavilyService.search(searchQuery);
@@ -53,6 +55,7 @@ public class WorkflowOrchestrator {
         log.info("Editor response: {}", response);
 
     }
+
     private TavilySearch createTopicSearch(String topic) {
         TavilySearch tavilySearch = new TavilySearch(topic);
         tavilySearch.setTimeRange(TimeRange.month);
@@ -70,6 +73,7 @@ public class WorkflowOrchestrator {
         }
     }
 
-    public record Query (TavilyResponse tavilyResponse, String topic){}
+    public record Query(TavilyResponse tavilyResponse, String topic) {
+    }
 
 }

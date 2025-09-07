@@ -34,9 +34,9 @@ public class SectionWriterAgent {
     private final ChatClient chatClient;
     private final ObjectMapper objectMapper;
     private final SystemMessage systemMessage;
+    private final SectionFormatConverter sectionFormatConverter;
     @Value("classpath:prompts/section-writer-prompt-template.st")
     private Resource sectionWriterAgentPromptTemplate;
-    private final SectionFormatConverter sectionFormatConverter;
 
     public SectionWriterAgent(ChatClient.Builder chatClientBuilder,
                               ObjectMapper objectMapper,
@@ -65,8 +65,8 @@ public class SectionWriterAgent {
         UserMessage userMessage = new UserMessage(formattedMessage);
         Prompt prompt = new Prompt(systemMessage, userMessage);
         return Objects.requireNonNull(chatClient.prompt(prompt)
-                        .call()
-                        .entity(sectionFormatConverter)
+                .call()
+                .entity(sectionFormatConverter)
         );
 
     }

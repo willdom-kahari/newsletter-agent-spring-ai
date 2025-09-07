@@ -37,6 +37,7 @@ public class EditorAgent {
         this.emailService = emailService;
         this.sectionFormatConverter = sectionFormatConverter;
     }
+
     public String edit(String formattedMessage, String topic) throws IOException {
         String editorMessage = editorAgentSystemMessage.getContentAsString(StandardCharsets.UTF_8)
                 .replace("{date}", LocalDate.now().toString());
@@ -47,9 +48,9 @@ public class EditorAgent {
         UserMessage userMessage = new UserMessage(userTemplate);
         Prompt prompt = new Prompt(systemMessage, userMessage);
         return Objects.requireNonNull(chatClient.prompt(prompt)
-                        .tools(emailService)
-                        .call()
-                        .entity(sectionFormatConverter)
+                .tools(emailService)
+                .call()
+                .entity(sectionFormatConverter)
         );
     }
 }

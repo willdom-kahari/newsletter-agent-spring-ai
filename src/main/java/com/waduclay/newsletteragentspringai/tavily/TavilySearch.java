@@ -11,15 +11,15 @@ import lombok.Data;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TavilySearch {
-	private final String query;
+    private final String query;
     @JsonProperty("time_range")
-	private TimeRange timeRange;
-	private Topic topic;
+    private TimeRange timeRange;
+    private Topic topic;
     @Builder.Default
     @JsonProperty("max_results")
-	private int maxResults = 5;
+    private int maxResults = 5;
     @JsonProperty("include_raw_content")
-	private RawContent includeRawContent;
+    private RawContent includeRawContent;
 
 
     public TavilySearch(String query) {

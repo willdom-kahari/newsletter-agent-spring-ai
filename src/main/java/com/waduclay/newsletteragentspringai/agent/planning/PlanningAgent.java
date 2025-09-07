@@ -95,8 +95,8 @@ public class PlanningAgent {
         Prompt prompt = new Prompt(systemMessage, userMessage);
 
         return Objects.requireNonNull(chatClient.prompt(prompt)
-                        .call()
-                        .entity(topicFormatConverter)
+                .call()
+                .entity(topicFormatConverter)
         );
 
     }
